@@ -1,0 +1,88 @@
+# ========================
+# Node.js / Frontend
+# ========================
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# ========================
+# Python / Backend
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+.eggs/
+build/
+develop-eggs/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+.venv/
+venv/
+env/
+.Python
+
+# ========================
+# Environment Variables
+# ========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env.local
+
+# ========================
+# IDEs & Editors
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================
+# Testing & Coverage
+# ========================
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# Misc
+# ========================
+*.log
+*.pid
+*.seed
+*.pid.lock
+.vercel
+.sentryclirc
