@@ -51,7 +51,25 @@ async def trigger_pipeline(project_id: str, user_idea: str, project_title: str) 
         # 3. Execute LangGraph Pipeline asynchronously
         final_state = await graph.ainvoke(initial_state)
         
-        # 4. Success: Mark project as complete
+        # 4. Generate embeddings for the outputs
+        import asyncio
+        from app.services.embedding_service import embed_project_outputs
+        
+        def _dump(output):
+            if not output: return None
+            return output.model_dump() if hasattr(output, "model_dump") else output
+            
+        await asyncio.to_thread(
+            embed_project_outputs,
+            project_id,
+            _dump(final_state.get("planner_output")),
+            _dump(final_state.get("pm_output")),
+            _dump(final_state.get("architect_output")),
+            _dump(final_state.get("database_output")),
+            _dump(final_state.get("documentation_output"))
+        )
+        
+        # 5. Success: Mark project as complete
         queries.update_project_status(db, project_id, "complete")
         
     except Exception as e:

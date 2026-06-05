@@ -102,4 +102,16 @@ export const projectsApi = {
       method: "DELETE",
     });
   },
+
+  /** Ask a question using the RAG Chat API */
+  askProjectQuestion: (
+    projectId: string,
+    question: string,
+    getToken: () => Promise<string | null>
+  ): Promise<{ answer: string; sources: string[] }> => {
+    return fetchWithAuth(`/projects/${projectId}/chat`, getToken, {
+      method: "POST",
+      body: JSON.stringify({ question }),
+    });
+  },
 };

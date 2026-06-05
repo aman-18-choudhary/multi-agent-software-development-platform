@@ -5,6 +5,7 @@ import { useProjectDetail } from "@/hooks/useProjectDetail";
 import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { AgentTimeline } from "@/components/projects/AgentTimeline";
 import { DocViewer } from "@/components/projects/DocViewer";
+import { ProjectChat } from "@/components/projects/ProjectChat";
 import { Loader2 } from "lucide-react";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +30,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-in fade-in zoom-in-95 duration-300">
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-in fade-in zoom-in-95 duration-300 space-y-8">
       <ProjectHeader project={project} />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -40,6 +41,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="lg:col-span-2">
           <DocViewer project={project} />
         </div>
+      </div>
+
+      <div className="pt-4">
+        <ProjectChat projectId={project.id} />
       </div>
     </div>
   );

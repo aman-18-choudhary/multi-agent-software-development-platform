@@ -12,11 +12,13 @@ from fastapi import APIRouter, Depends
 from app.config import settings
 from app.auth.clerk import get_current_user
 from app.api.v1.projects import router as projects_router
+from app.api.v1.chat import router as chat_router
 
 api_router = APIRouter()
 
 # Register project endpoints
 api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
+api_router.include_router(chat_router, prefix="/projects", tags=["chat"])
 
 
 
