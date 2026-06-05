@@ -34,9 +34,11 @@ export interface ProjectListResponse {
 export interface AgentRunDetail {
   name: string;
   status: string;
-  output: Record<string, unknown> | null;
+  output: Record<string, any> | null;
   duration_ms: number | null;
   llm_model: string | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
   completed_at: string | null;
 }
 

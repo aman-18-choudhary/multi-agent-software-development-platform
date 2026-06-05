@@ -15,6 +15,33 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
+def _fix_unescaped_newlines(s: str) -> str:
+    in_string = False
+    escape = False
+    res = []
+    for char in s:
+        if char == '"' and not escape:
+            in_string = not in_string
+            
+        if in_string:
+            if char == '\n':
+                res.append('\\n')
+            elif char == '\r':
+                res.append('\\r')
+            elif char == '\t':
+                res.append('\\t')
+            else:
+                res.append(char)
+        else:
+            res.append(char)
+            
+        if char == '\\' and not escape:
+            escape = True
+        else:
+            escape = False
+            
+    return "".join(res)
+
 async def _parse_json(response_text: str) -> Dict[str, Any]:
     """Parse JSON with multiple fallback strategies."""
     # Attempt 1: Direct JSON parsing
@@ -41,12 +68,20 @@ async def _parse_json(response_text: str) -> Dict[str, Any]:
     # Attempt 3: Regex extract
     match = re.search(r"\{.*\}", response_text, re.DOTALL)
     if match:
+        json_str = match.group(0)
         try:
-            return json.loads(match.group(0))
+            return json.loads(json_str)
         except json.JSONDecodeError:
             pass
+            
+        # Attempt 4: Regex extract + fix unescaped newlines
+        try:
+            fixed_str = _fix_unescaped_newlines(json_str)
+            return json.loads(fixed_str)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse JSON: {e}. Raw extracted: {fixed_str[:100]}...")
 
-    raise ValueError("Failed to parse JSON from LLM response")
+    raise ValueError("Failed to locate any JSON block in LLM response")
 
 
 async def generate_structured_json(prompt: str, max_retries: int = 3) -> Tuple[Dict[str, Any], int, int, str]:
@@ -78,11 +113,14 @@ async def generate_structured_json(prompt: str, max_retries: int = 3) -> Tuple[D
             )
             
             response_text = response.choices[0].message.content
+            logger.info("DOC RAW RESPONSE: %s", response_text)
+            
             usage = response.usage
             prompt_tokens = usage.prompt_tokens if usage else 0
             completion_tokens = usage.completion_tokens if usage else 0
             
             parsed_json = await _parse_json(response_text)
+            logger.info("DOC PARSED RESPONSE: %s", parsed_json)
             return parsed_json, prompt_tokens, completion_tokens, model
             
         except Exception as e:

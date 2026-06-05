@@ -94,6 +94,19 @@ def get_full_project_detail(db: Client, current_user: dict[str, Any], project_id
     # Fetch agent runs
     agent_runs = queries.get_agent_runs_for_project(db, project_id)
     
+    normalized_agents = []
+    for agent in agent_runs:
+        normalized_agents.append({
+            "name": agent.get("agent_name"),
+            "status": agent.get("status"),
+            "output": agent.get("output"),
+            "error_message": agent.get("error_message"),
+            "duration_ms": agent.get("duration_ms"),
+            "llm_model": agent.get("llm_model"),
+            "prompt_tokens": agent.get("prompt_tokens"),
+            "completion_tokens": agent.get("completion_tokens")
+        })
+    
     # For Day 2 MVP, documents are an empty list (added in Week 2 RAG/Docs)
     documents = []
 
@@ -104,7 +117,7 @@ def get_full_project_detail(db: Client, current_user: dict[str, Any], project_id
         status=project["status"],
         created_at=project["created_at"],
         completed_at=project["completed_at"],
-        agents=agent_runs,
+        agents=normalized_agents,
         documents=documents
     )
 

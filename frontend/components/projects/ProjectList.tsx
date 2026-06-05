@@ -1,7 +1,7 @@
 "use client";
 
 import { useProjects } from "@/hooks/useProjects";
-import ProjectCard from "./ProjectCard";
+import { ProjectCard } from "./ProjectCard";
 import { LayoutGrid, PlusCircle } from "lucide-react";
 import Link from "next/link";
 

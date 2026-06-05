@@ -178,23 +178,43 @@ async def run_database(state: GraphState) -> GraphState:
 
 async def run_documentation(state: GraphState) -> GraphState:
     project_id = state["project_id"]
+    user_idea = state["user_idea"]
+    planner_output = state.get("planner_output")
+    pm_output = state.get("pm_output")
+    architect_output = state.get("architect_output")
+    database_output = state.get("database_output")
     
     logger.info("documentation_started", extra={"project_id": project_id})
     await save_agent_run(project_id, "documentation", "running")
     start_time = time.time()
     
     try:
-        await asyncio.sleep(0.1)
-        output = DocumentationOutput(
-            readme="# Mock Project\nThis is a mock project README.",
-            api_docs="openapi: 3.0.0\ninfo:\n  title: Mock API",
-            setup_guide="1. Run mock install\n2. Run mock start"
+        prompt_template = (PROMPTS_DIR / "documentation_v1.txt").read_text()
+            
+        planner_json = planner_output.model_dump_json() if planner_output else "{}"
+        pm_json = pm_output.model_dump_json() if pm_output else "{}"
+        architect_json = architect_output.model_dump_json() if architect_output else "{}"
+        database_json = database_output.model_dump_json() if database_output else "{}"
+        
+        prompt = prompt_template.format(
+            user_idea=user_idea,
+            planner_output=planner_json,
+            pm_output=pm_json,
+            architect_output=architect_json,
+            database_output=database_json
         )
+        
+        parsed_json, prompt_tokens, comp_tokens, model_name = await generate_structured_json(prompt)
+        output = DocumentationOutput(**parsed_json)
         
         duration_ms = int((time.time() - start_time) * 1000)
         logger.info("documentation_completed", extra={"project_id": project_id, "duration_ms": duration_ms})
         
-        await save_agent_run(project_id, "documentation", "complete", output.model_dump(), duration_ms=duration_ms)
+        await save_agent_run(
+            project_id=project_id, agent_name="documentation", status="complete",
+            output=output.model_dump(), duration_ms=duration_ms,
+            llm_model=model_name, prompt_tokens=prompt_tokens, completion_tokens=comp_tokens
+        )
         return cast(GraphState, {"documentation_output": output, "current_agent": "documentation"})
         
     except Exception as e:
