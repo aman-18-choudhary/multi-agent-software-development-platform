@@ -44,7 +44,9 @@ def embed_project_outputs(project_id: str,
                           pm_output: Optional[Dict],
                           architect_output: Optional[Dict],
                           database_output: Optional[Dict],
-                          documentation_output: Optional[Dict]):
+                          documentation_output: Optional[Dict],
+                          critic_output: Optional[Dict] = None,
+                          improver_output: Optional[Dict] = None):
     """Processes all agent outputs, chunks them, generates embeddings, and stores them."""
     logger.info("embedding_started")
     db = db_client.get_supabase_client()
@@ -54,7 +56,9 @@ def embed_project_outputs(project_id: str,
         "pm": pm_output,
         "architect": architect_output,
         "database": database_output,
-        "documentation": documentation_output
+        "documentation": documentation_output,
+        "critic": critic_output,
+        "improver": improver_output
     }
     
     agent_chunks_map = {}

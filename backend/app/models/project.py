@@ -38,6 +38,7 @@ class ProjectResponse(BaseModel):
     status: str
     created_at: datetime
     completed_at: Optional[datetime] = None
+    quality_score: Optional[int] = None
 
 
 class ProjectListResponse(BaseModel):

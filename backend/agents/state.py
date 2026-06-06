@@ -22,7 +22,7 @@ class PlannerOutput(BaseModel):
 
 
 class PMOutput(BaseModel):
-    project_scope: str = ""
+    project_scope: Optional[str] = ""
     milestones: List[str] = Field(default_factory=list)
     risk_register: List[str] = Field(default_factory=list)
     acceptance_criteria: List[str] = Field(default_factory=list)
@@ -30,22 +30,22 @@ class PMOutput(BaseModel):
 
 
 class ArchitectOutput(BaseModel):
-    system_design: str = ""
+    system_design: Optional[str] = ""
     tech_stack: List[str] = Field(default_factory=list)
-    architecture_diagram: str = ""
+    architecture_diagram: Optional[str] = ""
 
 
 class DatabaseOutput(BaseModel):
-    schema_design: str = ""
+    schema_design: Optional[str] = ""
     tables: List[str] = Field(default_factory=list)
-    er_diagram: str = ""
-    sql_ddl: str = ""
+    er_diagram: Optional[str] = ""
+    sql_ddl: Optional[str] = ""
 
 
 class DocumentationOutput(BaseModel):
-    readme: str = ""
-    api_docs: str = ""
-    setup_guide: str = ""
+    readme: Optional[str] = ""
+    api_docs: Optional[str] = ""
+    setup_guide: Optional[str] = ""
 
 
 # -----------------------------------------------------------------------------
@@ -66,8 +66,15 @@ class GraphState(TypedDict):
     architect_output: Optional[ArchitectOutput]
     database_output: Optional[DatabaseOutput]
     documentation_output: Optional[DocumentationOutput]
+    critic_output: Optional[dict]
+    improver_output: Optional[dict]
+    improvement_goal: Optional[str]
     
     # Control / Telemetry
     current_agent: str
     status: str
     error: Optional[str]
+    llm_provider: Optional[str]
+    is_benchmark: Optional[bool]
+    total_prompt_tokens: Optional[int]
+    total_completion_tokens: Optional[int]

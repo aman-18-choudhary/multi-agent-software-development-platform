@@ -72,6 +72,19 @@ def list_user_projects(db: Client, current_user: dict[str, Any], page: int = 1, 
     offset = (page - 1) * limit
 
     projects_data, total = queries.get_projects_by_user(db, internal_user_id, limit, offset)
+    
+    if projects_data:
+        project_ids = [p["id"] for p in projects_data]
+        critic_runs = db.table("agent_runs").select("project_id, output").in_("project_id", project_ids).eq("agent_name", "critic").execute()
+        
+        score_map = {}
+        for r in critic_runs.data:
+            out = r.get("output", {})
+            if out:
+                score_map[r["project_id"]] = out.get("overall_score")
+                
+        for p in projects_data:
+            p["quality_score"] = score_map.get(p["id"])
 
     return ProjectListResponse(
         projects=projects_data,

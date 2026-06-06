@@ -12,3 +12,10 @@ supabase==2.15.2
 python-dotenv==1.1.0
 sentry-sdk[fastapi]==2.20.0
 cachetools==5.5.2
+
+fpdf2
+python-pptx
+
+openai
+anthropic
+google-genai

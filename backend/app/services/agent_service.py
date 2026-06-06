@@ -66,8 +66,15 @@ async def trigger_pipeline(project_id: str, user_idea: str, project_title: str) 
             _dump(final_state.get("pm_output")),
             _dump(final_state.get("architect_output")),
             _dump(final_state.get("database_output")),
-            _dump(final_state.get("documentation_output"))
+            _dump(final_state.get("documentation_output")),
+            _dump(final_state.get("critic_output")),
+            _dump(final_state.get("improver_output"))
         )
+        
+        from app.services.version_service import snapshot_project_version
+        critic_out = final_state.get("critic_output", {})
+        score = critic_out.get("overall_score", 0) if critic_out else 0
+        await asyncio.to_thread(snapshot_project_version, db, project_id, score)
         
         # 5. Success: Mark project as complete
         queries.update_project_status(db, project_id, "complete")
@@ -75,4 +82,73 @@ async def trigger_pipeline(project_id: str, user_idea: str, project_title: str) 
     except Exception as e:
         logger.error(f"Pipeline failed for project {project_id}: {e}")
         # Mark project as failed on exception
+        queries.update_project_status(db, project_id, "failed")
+
+async def trigger_iteration_pipeline(project_id: str, improvement_goal: str) -> None:
+    from agents.graph import graph
+    from app.services.version_service import snapshot_project_version
+    import asyncio
+    
+    db = db_client.get_supabase_client()
+    queries.update_project_status(db, project_id, "running")
+    
+    project = queries.get_project_by_id(db, project_id)
+    runs = queries.get_agent_runs_for_project(db, project_id)
+    outputs = {r["agent_name"]: r.get("output") for r in runs}
+    
+    from agents.models.planner_output import PlannerOutput
+    from agents.models.pm_output import PMOutput
+    from agents.models.architect_output import ArchitectOutput
+    from agents.models.database_output import DatabaseOutput
+    from agents.models.documentation_output import DocumentationOutput
+    
+    initial_state = GraphState(
+        project_id=project_id,
+        user_idea=project["description"],
+        project_title=project["title"],
+        improvement_goal=improvement_goal,
+        planner_output=PlannerOutput(**outputs["planner"]) if outputs.get("planner") else None,
+        pm_output=PMOutput(**outputs["pm"]) if outputs.get("pm") else None,
+        architect_output=ArchitectOutput(**outputs["architect"]) if outputs.get("architect") else None,
+        database_output=DatabaseOutput(**outputs["database"]) if outputs.get("database") else None,
+        documentation_output=DocumentationOutput(**outputs["documentation"]) if outputs.get("documentation") else None,
+        critic_output=outputs.get("critic"),
+        improver_output=None,
+        current_agent="planner",
+        status="running",
+        error=None,
+    )
+    
+    try:
+        final_state = await graph.ainvoke(initial_state)
+        
+        critic_out = final_state.get("critic_output", {})
+        score = critic_out.get("overall_score", 0) if critic_out else 0
+        improver_out = final_state.get("improver_output", {})
+        if improver_out:
+            score += improver_out.get("expected_score_improvement", 0)
+            
+        await asyncio.to_thread(snapshot_project_version, db, project_id, score)
+        
+        from app.services.embedding_service import embed_project_outputs
+        def _dump(output):
+            if not output: return None
+            return output.model_dump() if hasattr(output, "model_dump") else output
+            
+        await asyncio.to_thread(
+            embed_project_outputs,
+            project_id,
+            _dump(final_state.get("planner_output")),
+            _dump(final_state.get("pm_output")),
+            _dump(final_state.get("architect_output")),
+            _dump(final_state.get("database_output")),
+            _dump(final_state.get("documentation_output")),
+            _dump(final_state.get("critic_output")),
+            _dump(final_state.get("improver_output"))
+        )
+        
+        queries.update_project_status(db, project_id, "complete")
+        
+    except Exception as e:
+        logger.error(f"Iteration failed for project {project_id}: {e}")
         queries.update_project_status(db, project_id, "failed")

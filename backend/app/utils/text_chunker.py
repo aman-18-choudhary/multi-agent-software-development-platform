@@ -4,7 +4,7 @@ MASDP Backend — Text Chunker Utility.
 Splits text into chunks suitable for embedding and retrieval.
 """
 
-def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 500, overlap: int = 100) -> list[str]:
     """
     Splits text into overlapping chunks of approximate chunk_size characters.
     
@@ -51,7 +51,10 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> list[st
         if chunk:
             chunks.append(chunk)
             
+        if end >= text_length:
+            break
+            
         # Move start forward for the next chunk
-        start = max(start + 1, end - overlap)
+        start = end - overlap
 
     return chunks
