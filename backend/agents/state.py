@@ -69,6 +69,8 @@ class GraphState(TypedDict):
     critic_output: Optional[dict]
     improver_output: Optional[dict]
     improvement_goal: Optional[str]
+    change_request: Optional[str]
+    evolver_output: Optional[dict]
     
     # Control / Telemetry
     current_agent: str

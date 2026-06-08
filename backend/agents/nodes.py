@@ -393,3 +393,71 @@ async def run_improver(state: GraphState) -> GraphState:
             await save_agent_run(project_id, "improver", "failed", duration_ms=duration_ms, error=str(e))
         logger.error("improver_failed", extra={"project_id": project_id, "error": str(e)})
         raise
+
+async def run_evolver(state: GraphState) -> GraphState:
+    project_id = state["project_id"]
+    user_idea = state["user_idea"]
+    change_request = state.get("change_request", "")
+    
+    planner_output = state.get("planner_output")
+    pm_output = state.get("pm_output")
+    architect_output = state.get("architect_output")
+    database_output = state.get("database_output")
+    documentation_output = state.get("documentation_output")
+    
+    provider = state.get("llm_provider") or "groq"
+    is_benchmark = state.get("is_benchmark", False)
+    
+    logger.info("evolver_started", extra={"project_id": project_id})
+    if not is_benchmark:
+        await save_agent_run(project_id, "evolver", "running")
+    start_time = time.time()
+    
+    try:
+        import json
+        prompt_template = (PROMPTS_DIR / "evolver_v1.txt").read_text()
+            
+        compact_context_dict = {
+            "functional_requirements": planner_output.functional_requirements if planner_output else [],
+            "milestones": pm_output.milestones if pm_output else [],
+            "system_design": architect_output.system_design if architect_output else "",
+            "tech_stack": architect_output.tech_stack if architect_output else [],
+            "schema_design": database_output.schema_design if database_output else "",
+            "tables": database_output.tables if database_output else [],
+            "documentation_overview": (documentation_output.readme[:500] + "...") if (documentation_output and documentation_output.readme) else ""
+        }
+        
+        prompt = prompt_template.format(
+            user_idea=user_idea,
+            change_request=change_request,
+            compact_context=json.dumps(compact_context_dict, indent=2)
+        )
+        
+        parsed_json, prompt_tokens, comp_tokens, model_name = await generate_structured_json(prompt, provider_name=provider)
+        
+        from agents.models.evolver_output import EvolverOutput
+        output = EvolverOutput(**parsed_json)
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        logger.info("evolver_completed", extra={"project_id": project_id, "duration_ms": duration_ms})
+        
+        if not is_benchmark:
+            await save_agent_run(
+                project_id=project_id, agent_name="evolver", status="complete",
+                output=output.model_dump(), duration_ms=duration_ms,
+                llm_model=model_name, prompt_tokens=prompt_tokens, completion_tokens=comp_tokens
+            )
+        return cast(GraphState, {
+            "evolver_output": output.model_dump(), 
+            "current_agent": "evolver",
+            "total_prompt_tokens": (state.get("total_prompt_tokens") or 0) + prompt_tokens,
+            "total_completion_tokens": (state.get("total_completion_tokens") or 0) + comp_tokens
+        })
+        
+    except Exception as e:
+        duration_ms = int((time.time() - start_time) * 1000)
+        if not is_benchmark:
+            await save_agent_run(project_id, "evolver", "failed", duration_ms=duration_ms, error=str(e))
+        logger.error("evolver_failed", extra={"project_id": project_id, "error": str(e)})
+        raise
+

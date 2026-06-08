@@ -49,9 +49,9 @@ def create_new_project(db: Client, current_user: dict[str, Any], project_in: Pro
         queries.insert_agent_run(db, project["id"], agent_name, agent_status)
         agent_responses.append({"name": agent_name, "status": agent_status})
 
-    # Trigger the LangGraph pipeline asynchronously
+    # Trigger the LangGraph pipeline safely using FastAPI BackgroundTasks
     background_tasks.add_task(
-        agent_service.trigger_pipeline, 
+        agent_service.trigger_pipeline,
         project_id=project["id"], 
         user_idea=project_in.description, 
         project_title=project_in.title

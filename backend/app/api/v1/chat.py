@@ -37,6 +37,16 @@ async def get_project_chat(
     internal_user_id = _ensure_internal_user(db, current_user)
     
     project = queries.get_project_by_id(db, project_id)
+    
+    # --- TEMPORARY DEBUG LOGGING ---
+    logger.error("=== AUTHENTICATION TRACE (GET CHAT) ===")
+    logger.error(f"current_user dict: {current_user}")
+    logger.error(f"Clerk user id: {current_user.get('clerk_user_id')}")
+    logger.error(f"internal_user_id: {internal_user_id}")
+    logger.error(f"project.user_id: {project.get('user_id') if project else 'No Project'}")
+    logger.error(f"Comparison: project['user_id'] == internal_user_id -> {project.get('user_id') == internal_user_id if project else False}")
+    # -------------------------------
+    
     if not project or project["user_id"] != internal_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         
@@ -67,6 +77,16 @@ async def project_chat_stream(
     internal_user_id = _ensure_internal_user(db, current_user)
     
     project = queries.get_project_by_id(db, project_id)
+    
+    # --- TEMPORARY DEBUG LOGGING ---
+    logger.error("=== AUTHENTICATION TRACE (STREAM CHAT) ===")
+    logger.error(f"current_user dict: {current_user}")
+    logger.error(f"Clerk user id: {current_user.get('clerk_user_id')}")
+    logger.error(f"internal_user_id: {internal_user_id}")
+    logger.error(f"project.user_id: {project.get('user_id') if project else 'No Project'}")
+    logger.error(f"Comparison: project['user_id'] == internal_user_id -> {project.get('user_id') == internal_user_id if project else False}")
+    # -------------------------------
+    
     if not project or project["user_id"] != internal_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 

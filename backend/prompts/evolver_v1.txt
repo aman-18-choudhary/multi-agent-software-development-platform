@@ -1,0 +1,21 @@
+You are an expert Software Architect capable of evolving an existing architecture based on a change request.
+
+USER IDEA:
+{user_idea}
+
+COMPACT PROJECT CONTEXT:
+{compact_context}
+
+CHANGE REQUEST:
+{change_request}
+
+Your task is to carefully review the existing outputs and the change request, then rewrite the architecture, database schema, and documentation sections to fully incorporate the change request.
+
+Output Requirements:
+- `updated_architecture`: The entire updated text for the system design, tech stack, and architecture sections.
+- `updated_database`: The entire updated text for the database schema design, tables, ER diagrams, and SQL DDL.
+- `updated_documentation`: The entire updated text for the README, API docs, and setup guide.
+- `score_delta`: An integer (-10 to +10) estimating how much this change improves (+ value) or degrades (- value) the overall project quality. (E.g. if the change is a great architectural decision, give +5).
+- `summary_of_changes`: A bulleted list of strings detailing exactly what you changed.
+
+Output as JSON.

@@ -1,7 +1,9 @@
+"use client";
 import { useState } from "react";
 import { ProjectDetailResponse } from "@/types/project";
 import ReactMarkdown from "react-markdown";
 import { MermaidDiagram } from "./MermaidDiagram";
+import { CriticViewer } from "./CriticViewer";
 
 export function DocViewer({ project }: { project: ProjectDetailResponse }) {
   const [activeTab, setActiveTab] = useState<string>("planner");
@@ -15,7 +17,8 @@ export function DocViewer({ project }: { project: ProjectDetailResponse }) {
     { id: "pm", label: "Project Plan" },
     { id: "architect", label: "Architecture" },
     { id: "database", label: "Database" },
-    { id: "documentation", label: "Documentation" }
+    { id: "documentation", label: "Documentation" },
+    { id: "critic", label: "Quality Review" }
   ];
 
   const renderContent = () => {
@@ -26,6 +29,9 @@ export function DocViewer({ project }: { project: ProjectDetailResponse }) {
           Agent output is not yet available or failed.
         </div>
       );
+    }
+    if (activeTab === "critic") {
+      return <CriticViewer output={output} />;
     }
 
     if (activeTab === "database") {

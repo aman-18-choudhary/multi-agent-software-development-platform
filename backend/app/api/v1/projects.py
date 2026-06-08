@@ -87,8 +87,26 @@ async def create_project_version(
     """Trigger a new architecture iteration."""
     from app.services.agent_service import trigger_iteration_pipeline
     from app.services.version_service import get_latest_version
-    
     background_tasks.add_task(trigger_iteration_pipeline, project_id=project_id, improvement_goal=request.goal)
+    latest = get_latest_version(db, project_id)
+    new_version = (latest.get("version_number", 0) + 1) if latest else 2
+    return {"version": new_version, "status": "running"}
+
+class EvolveRequest(BaseModel):
+    change_request: str
+
+@router.post("/{project_id}/evolve", status_code=status.HTTP_202_ACCEPTED)
+async def evolve_project(
+    project_id: str,
+    request: EvolveRequest,
+    background_tasks: BackgroundTasks,
+    current_user: dict[str, Any] = Depends(get_authenticated_user),
+    db: Client = Depends(get_db),
+):
+    """Trigger an architecture evolution based on a change request."""
+    from app.services.agent_service import trigger_evolution_pipeline
+    from app.services.version_service import get_latest_version
+    background_tasks.add_task(trigger_evolution_pipeline, project_id=project_id, change_request=request.change_request)
     latest = get_latest_version(db, project_id)
     new_version = (latest.get("version_number", 0) + 1) if latest else 2
     return {"version": new_version, "status": "running"}

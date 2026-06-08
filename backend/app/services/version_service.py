@@ -34,6 +34,8 @@ def list_versions(db: Client, project_id: str) -> List[Dict[str, Any]]:
     return [{"version": r["version_number"], "score": r["critic_score"], "created_at": r["created_at"]} for r in res.data]
 
 def compare_versions(db: Client, project_id: str, v1: int, v2: int) -> Dict[str, Any]:
+    import difflib
+    
     res = db.table("project_versions").select("*").eq("project_id", project_id).in_("version_number", [v1, v2]).execute()
     versions = {r["version_number"]: r for r in res.data}
     
@@ -46,15 +48,35 @@ def compare_versions(db: Client, project_id: str, v1: int, v2: int) -> Dict[str,
     sum1 = json.loads(ver1.get("summary") or "{}")
     sum2 = json.loads(ver2.get("summary") or "{}")
     
+    def get_text(summary_data, section, key):
+        data = summary_data.get(section, {}) or {}
+        return data.get(key, "") or ""
+        
+    def diff_text(text1, text2):
+        lines1 = text1.splitlines()
+        lines2 = text2.splitlines()
+        diff = difflib.unified_diff(lines1, lines2, lineterm="")
+        return "\n".join(diff)
+        
+    arch_diff = diff_text(get_text(sum1, "architect", "system_design"), get_text(sum2, "architect", "system_design"))
+    db_diff = diff_text(get_text(sum1, "database", "schema_design"), get_text(sum2, "database", "schema_design"))
+    doc_diff = diff_text(get_text(sum1, "documentation", "readme"), get_text(sum2, "documentation", "readme"))
+    
     improver_output = sum2.get("improver", {})
+    evolver_output = sum2.get("evolver", {})
+    
+    changes = improver_output.get("changes_made", [])
+    if not changes and evolver_output:
+        changes = evolver_output.get("summary_of_changes", [])
+        
+    score_delta = (ver2.get("critic_score") or 0) - (ver1.get("critic_score") or 0)
     
     return {
         "v1_score": ver1.get("critic_score"),
         "v2_score": ver2.get("critic_score"),
-        "score_delta": (ver2.get("critic_score") or 0) - (ver1.get("critic_score") or 0),
-        "security_improvements": improver_output.get("security_improvements", []),
-        "scalability_improvements": improver_output.get("scalability_improvements", []),
-        "architecture_updates": improver_output.get("architecture_updates", []),
-        "database_updates": improver_output.get("database_updates", []),
-        "changes_made": improver_output.get("changes_made", [])
+        "score_delta": score_delta,
+        "architecture_diff": arch_diff,
+        "database_diff": db_diff,
+        "documentation_diff": doc_diff,
+        "changes_made": changes
     }

@@ -6,6 +6,7 @@ import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { AgentTimeline } from "@/components/projects/AgentTimeline";
 import { DocViewer } from "@/components/projects/DocViewer";
 import { ProjectChat } from "@/components/projects/ProjectChat";
+import { VersionHistory } from "@/components/projects/VersionHistory";
 import { Loader2 } from "lucide-react";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -34,8 +35,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       <ProjectHeader project={project} />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-8">
           <AgentTimeline agents={project.agents} />
+          {project.status === 'complete' && <VersionHistory projectId={project.id} />}
         </div>
         
         <div className="lg:col-span-2">

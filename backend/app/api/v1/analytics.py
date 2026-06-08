@@ -12,7 +12,7 @@ from app.services.rag_metrics_service import get_rag_analytics
 
 router = APIRouter()
 
-@router.get("")
+@router.get("/stats")
 async def fetch_analytics(
     current_user: dict[str, Any] = Depends(get_current_user)
 ):

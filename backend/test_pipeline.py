@@ -1,28 +1,39 @@
 import asyncio
+import os
 import logging
-import uuid
-from app.db import client as db_client
-from app.db import queries
-from app.services.agent_service import trigger_pipeline
+from dotenv import load_dotenv
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-async def test():
-    db = db_client.get_supabase_client()
-    users = db.table("users").select("*").limit(1).execute()
-    user_id = users.data[0]["id"] if users.data else str(uuid.uuid4())
-    if not users.data:
-        db.table("users").insert({"id": user_id, "clerk_id": "test", "email": "test@test.com"}).execute()
-        
-    project = queries.insert_project(db, user_id, "Food Delivery App", "Build a food delivery app like UberEats.")
-    project_id = project["id"]
+async def test_run():
+    from app.services.agent_service import trigger_pipeline
+    from app.db import client as db_client
+    from app.db import queries
     
-    agents_to_init = ["planner", "pm", "architect", "database", "documentation"]
-    for agent_name in agents_to_init:
-        queries.insert_agent_run(db, project_id, agent_name, "queued")
+    db = db_client.get_supabase_client()
+    
+    # Let's get an existing user id to satisfy foreign key constraints.
+    res = db.table("users").select("id").limit(1).execute()
+    uid = res.data[0]["id"]
+    
+    # 1. create dummy project
+    project = queries.insert_project(db, uid, "Test Bug", "Test Description")
+    pid = project["id"]
+    print("Project ID:", pid)
+    
+    # 2. init agents
+    for agent_name in ["planner", "pm", "architect", "database", "documentation", "critic"]:
+        queries.insert_agent_run(db, pid, agent_name, "queued")
         
-    print(f"Triggering pipeline for {project_id}...")
-    await trigger_pipeline(project_id, "Build a food delivery app like UberEats.", "Food Delivery App")
-    print("Pipeline complete!")
+    # 3. trigger pipeline
+    print("Triggering pipeline...")
+    await trigger_pipeline(pid, "Test Description", "Test Bug")
+    print("Pipeline completed synchronously in test.")
+    
+    # 4. Check status
+    r = db.table("projects").select("status").eq("id", pid).execute()
+    print("Final status:", r.data[0]["status"])
 
-asyncio.run(test())
+if __name__ == "__main__":
+    asyncio.run(test_run())

@@ -14,6 +14,7 @@ from agents.nodes import (
     run_documentation,
     run_critic,
     run_improver,
+    run_evolver,
 )
 
 def should_improve(state: GraphState):
@@ -32,9 +33,12 @@ workflow.add_node("database", run_database)
 workflow.add_node("documentation", run_documentation)
 workflow.add_node("critic", run_critic)
 workflow.add_node("improver", run_improver)
+workflow.add_node("evolver", run_evolver)
 
 # Set the entry point
 def route_start(state: GraphState):
+    if state.get("change_request"):
+        return "evolver"
     if state.get("improvement_goal"):
         return "improver"
     return "planner"
@@ -42,6 +46,7 @@ def route_start(state: GraphState):
 workflow.set_conditional_entry_point(
     route_start,
     {
+        "evolver": "evolver",
         "improver": "improver",
         "planner": "planner"
     }
@@ -55,6 +60,7 @@ workflow.add_edge("database", "documentation")
 workflow.add_edge("documentation", "critic")
 workflow.add_conditional_edges("critic", should_improve)
 workflow.add_edge("improver", END)
+workflow.add_edge("evolver", END)
 
 # Compile into an executable graph
 graph = workflow.compile()
