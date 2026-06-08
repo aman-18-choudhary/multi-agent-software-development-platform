@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { Sheet, Box, IconButton, Typography, Slider } from '@mui/joy';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { useViewerStore } from '@/lib/store/useViewerStore';
 
@@ -27,75 +26,57 @@ export default function PlaybackControls() {
   if (versions.length <= 1) return null;
 
   return (
-    <Sheet
-      sx={{
-        position: 'absolute',
-        bottom: 24,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 400,
-        borderRadius: '32px',
-        boxShadow: 'lg',
-        p: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        zIndex: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-        <IconButton 
-          size="sm" 
-          variant="plain" 
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[400px] rounded-[32px] shadow-lg p-4 flex flex-col gap-4 z-10 bg-white/10 backdrop-blur-md border border-white/10 text-white">
+      <div className="flex items-center justify-center gap-4">
+        <button 
           onClick={() => {
             setPlayback(false);
             setVersionIndex((currentIndex - 1 + versions.length) % versions.length);
           }}
+          className="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors"
         >
-          <SkipBack size={18} />
-        </IconButton>
+          <SkipBack size={20} />
+        </button>
         
-        <IconButton 
-          size="lg" 
-          variant="solid" 
-          color="primary" 
-          sx={{ borderRadius: '50%' }}
+        <button 
           onClick={togglePlayback}
+          className="p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full transition-colors shadow-md"
         >
-          {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-        </IconButton>
+          {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        </button>
         
-        <IconButton 
-          size="sm" 
-          variant="plain" 
+        <button 
           onClick={() => {
             setPlayback(false);
             setVersionIndex((currentIndex + 1) % versions.length);
           }}
+          className="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors"
         >
-          <SkipForward size={18} />
-        </IconButton>
-      </Box>
+          <SkipForward size={20} />
+        </button>
+      </div>
 
-      <Box sx={{ px: 2 }}>
-        <Slider
-          min={0}
-          max={versions.length - 1}
-          step={1}
+      <div className="px-4 pb-2">
+        <input 
+          type="range" 
+          min={0} 
+          max={versions.length - 1} 
+          step={1} 
           value={currentIndex}
-          onChange={(_, value) => {
+          onChange={(e) => {
             setPlayback(false);
-            setVersionIndex(value as number);
+            setVersionIndex(parseInt(e.target.value));
           }}
-          marks={versions.map((v, i) => ({ value: i, label: `V${v.version_number}` }))}
-          valueLabelDisplay="off"
-          sx={{
-            '--Slider-markActiveColor': 'white',
-          }}
+          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-500"
         />
-      </Box>
-    </Sheet>
+        <div className="flex justify-between mt-2 px-1">
+          {versions.map((v, i) => (
+            <span key={i} className={`text-[10px] font-medium ${i === currentIndex ? 'text-indigo-400' : 'text-gray-400'}`}>
+              V{v.version_number}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
