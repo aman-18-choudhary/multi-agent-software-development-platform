@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { CssVarsProvider, Box, Typography, Button, IconButton } from '@mui/joy';
 import { ArrowLeft, Box as BoxIcon, Database, Layers, LayoutDashboard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import ArchitectureViewer from '@/components/3d-viewer/ArchitectureViewer';
@@ -34,68 +33,70 @@ export default function ArchitectureViewerPage({ params }: { params: { id: strin
   }, [params.id, setVersions]);
 
   return (
-    <CssVarsProvider defaultMode="dark">
-      <Box sx={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div className="flex h-screen w-screen overflow-hidden bg-black text-white font-sans">
+      
+      {/* Left Sidebar */}
+      <div className="w-[260px] bg-zinc-950 border-r border-white/10 flex flex-col p-4">
+        <div className="flex items-center gap-2 mb-8">
+          <BoxIcon size={24} className="text-indigo-500" />
+          <h1 className="text-xl font-bold tracking-tight">MASDP Viewer</h1>
+        </div>
         
-        {/* Left Sidebar */}
-        <Box 
-          sx={{ 
-            width: 260, 
-            bgcolor: 'background.surface', 
-            borderRight: '1px solid', 
-            borderColor: 'divider',
-            display: 'flex',
-            flexDirection: 'column',
-            p: 2
-          }}
+        <div className="flex flex-col gap-2 flex-1">
+          <button 
+            onClick={() => router.push(`/dashboard/projects/${params.id}`)}
+            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+          >
+            <LayoutDashboard size={18} />
+            Project Dashboard
+          </button>
+          <button 
+            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-indigo-400 bg-indigo-500/10 rounded-lg transition-colors w-full text-left"
+          >
+            <Layers size={18} />
+            3D Architecture
+          </button>
+          <button 
+            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+          >
+            <Database size={18} />
+            Data Models
+          </button>
+        </div>
+
+        <button 
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center justify-center gap-2 px-4 py-2 mt-auto text-sm font-medium text-gray-300 border border-white/10 hover:bg-white/5 rounded-lg transition-colors w-full"
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4 }}>
-            <BoxIcon size={24} color="#0B6BCB" />
-            <Typography level="title-lg" fontWeight="xl">MASDP Viewer</Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
-            <Button variant="plain" color="neutral" startDecorator={<LayoutDashboard size={18} />} sx={{ justifyContent: 'flex-start' }} onClick={() => router.push(`/dashboard/projects/${params.id}`)}>
-              Project Dashboard
-            </Button>
-            <Button variant="soft" color="primary" startDecorator={<Layers size={18} />} sx={{ justifyContent: 'flex-start' }}>
-              3D Architecture
-            </Button>
-            <Button variant="plain" color="neutral" startDecorator={<Database size={18} />} sx={{ justifyContent: 'flex-start' }}>
-              Data Models
-            </Button>
-          </Box>
+          <ArrowLeft size={18} />
+          Back to Hub
+        </button>
+      </div>
 
-          <Button variant="outlined" color="neutral" startDecorator={<ArrowLeft size={18} />} onClick={() => router.push('/dashboard')}>
-            Back to Hub
-          </Button>
-        </Box>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col relative bg-[#09090b]">
+        
+        {/* Top Nav */}
+        <div className="h-[60px] border-b border-white/10 flex items-center px-6 bg-zinc-950/50 backdrop-blur-sm z-10">
+          <h2 className="text-base font-semibold text-gray-200">Premium Architecture Visualization</h2>
+        </div>
 
-        {/* Main Content Area */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          
-          {/* Top Nav */}
-          <Box sx={{ height: 60, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', px: 3, bgcolor: 'background.surface' }}>
-            <Typography level="title-md">Premium Architecture Visualization</Typography>
-          </Box>
+        {/* 3D Canvas Area */}
+        <div className="flex-1 relative">
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-gray-400 animate-pulse">Loading spatial data...</p>
+            </div>
+          ) : (
+            <>
+              <ArchitectureViewer />
+              <InspectorPanel />
+              <PlaybackControls />
+            </>
+          )}
+        </div>
 
-          {/* 3D Canvas Area */}
-          <Box sx={{ flex: 1, position: 'relative' }}>
-            {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <Typography>Loading spatial data...</Typography>
-              </Box>
-            ) : (
-              <>
-                <ArchitectureViewer />
-                <InspectorPanel />
-                <PlaybackControls />
-              </>
-            )}
-          </Box>
-
-        </Box>
-      </Box>
-    </CssVarsProvider>
+      </div>
+    </div>
   );
 }
