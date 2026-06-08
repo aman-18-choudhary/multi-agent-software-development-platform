@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { Sheet, Typography, Box, Divider, Chip, IconButton } from '@mui/joy';
 import { X } from 'lucide-react';
 import { useViewerStore } from '@/lib/store/useViewerStore';
 
@@ -12,52 +11,37 @@ export default function InspectorPanel() {
   if (!selectedNode) return null;
 
   return (
-    <Sheet
-      sx={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        width: 320,
-        maxHeight: 'calc(100vh - 32px)',
-        overflowY: 'auto',
-        borderRadius: 'md',
-        boxShadow: 'md',
-        p: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        zIndex: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Box>
-          <Typography level="title-lg">{selectedNode.label}</Typography>
-          <Chip size="sm" variant="soft" color="primary" sx={{ mt: 1 }}>
+    <div className="absolute top-4 right-4 w-80 max-h-[calc(100vh-32px)] overflow-y-auto rounded-xl shadow-lg p-5 flex flex-col gap-4 z-10 bg-white/10 backdrop-blur-md border border-white/10 text-white">
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-lg font-semibold">{selectedNode.label}</h2>
+          <span className="inline-block mt-2 px-2 py-0.5 text-xs font-medium bg-indigo-500/20 text-indigo-300 rounded-md">
             {selectedNode.type.toUpperCase()}
-          </Chip>
-        </Box>
-        <IconButton size="sm" variant="plain" color="neutral" onClick={() => setSelectedNode(null)}>
+          </span>
+        </div>
+        <button 
+          onClick={() => setSelectedNode(null)}
+          className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+        >
           <X size={16} />
-        </IconButton>
-      </Box>
+        </button>
+      </div>
 
-      <Divider />
+      <div className="h-px w-full bg-white/10" />
 
-      <Box>
-        <Typography level="title-sm" sx={{ mb: 1 }}>System Context</Typography>
-        <Typography level="body-sm">
+      <div>
+        <h3 className="text-sm font-semibold mb-2 text-gray-300">System Context</h3>
+        <p className="text-sm text-gray-400 leading-relaxed">
           {selectedNode.details?.system_design || 'No specific design context found for this node. This node was automatically inferred from the architecture graph.'}
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
-      <Box>
-        <Typography level="title-sm" sx={{ mb: 1 }}>ID</Typography>
-        <Typography level="body-xs" sx={{ fontFamily: 'monospace', bgcolor: 'background.level1', p: 1, borderRadius: 'sm' }}>
+      <div>
+        <h3 className="text-sm font-semibold mb-2 text-gray-300">ID</h3>
+        <p className="text-xs font-mono bg-black/40 p-2 rounded-md text-gray-400 break-all">
           {selectedNode.id}
-        </Typography>
-      </Box>
-    </Sheet>
+        </p>
+      </div>
+    </div>
   );
 }
