@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import SceneGraph from './SceneGraph';
 import { useViewerStore } from '@/lib/store/useViewerStore';
 import { transformArchitectureToGraph } from '@/lib/graphUtils';
-import { Box, Typography, CircularProgress } from '@mui/joy';
+import { Loader2 } from 'lucide-react';
 
 export default function ArchitectureViewer() {
   const versions = useViewerStore((state) => state.versions);
@@ -20,36 +20,36 @@ export default function ArchitectureViewer() {
 
   if (!versions.length) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center h-full w-full min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      </div>
     );
   }
 
   if (graphData.nodes.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-        <Typography>No architecture data available for this version.</Typography>
-      </Box>
+      <div className="flex justify-center items-center h-full w-full min-h-[400px]">
+        <p className="text-gray-400">No architecture data available for this version.</p>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ width: '100%', height: '100%', background: '#09090b', position: 'relative' }}>
+    <div className="w-full h-full bg-[#09090b] relative">
       <Canvas camera={{ position: [0, 5, 15], fov: 60 }}>
         <color attach="background" args={['#09090b']} />
         <SceneGraph graphData={graphData} />
       </Canvas>
       
       {/* HUD overlay for current version */}
-      <Box sx={{ position: 'absolute', top: 16, left: 16, pointerEvents: 'none' }}>
-        <Typography level="h4" sx={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+      <div className="absolute top-4 left-4 pointer-events-none">
+        <h4 className="text-white text-xl font-semibold drop-shadow-md">
           Version {currentVersion?.version_number || 1}
-        </Typography>
-        <Typography level="body-sm" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+        </h4>
+        <p className="text-white/70 text-sm">
           {graphData.nodes.length} Nodes • {graphData.edges.length} Dependencies
-        </Typography>
-      </Box>
-    </Box>
+        </p>
+      </div>
+    </div>
   );
 }
