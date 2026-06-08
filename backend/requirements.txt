@@ -19,3 +19,4 @@ python-pptx
 openai
 anthropic
 google-genai
+sentence-transformers
