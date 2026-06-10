@@ -150,15 +150,15 @@ masdp/
 
 ## 📸 Screenshots
 
-*(Replace placeholders with actual UI screenshots)*
+*(Please save the uploaded screenshots into the `docs/screenshots/` directory with the matching filenames below)*
 
 | Dashboard | Architecture View |
 |:---:|:---:|
-| ![Dashboard Placehoder](https://via.placeholder.com/600x400?text=Dashboard+Screenshot) | ![Architecture Placeholder](https://via.placeholder.com/600x400?text=Architecture+View) |
+| ![Dashboard](./docs/screenshots/dashboard.png) | ![Architecture](./docs/screenshots/architecture.png) |
 
 | RAG Chat Assistant | Evaluation Arena |
 |:---:|:---:|
-| ![Chat Placeholder](https://via.placeholder.com/600x400?text=RAG+Chat) | ![Arena Placeholder](https://via.placeholder.com/600x400?text=Arena+Dashboard) |
+| ![Chat Assistant](./docs/screenshots/chat.png) | ![Arena Dashboard](./docs/screenshots/arena.png) |
 
 ---
 
