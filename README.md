@@ -213,25 +213,6 @@ GEMINI_API_KEY=...
 
 ---
 
-## 🚀 Deployment
-
-MASDP is configured for a robust serverless/PaaS deployment architecture:
-
-### Deploying the Frontend (Vercel)
-1. Import the `frontend` directory into a new Vercel project.
-2. Add all `NEXT_PUBLIC_*` and `CLERK_*` environment variables.
-3. Deploy! Next.js will automatically build and optimize the application.
-
-### Deploying the Backend (Railway)
-1. Link your GitHub repository to Railway.
-2. Set the Root Directory to `/backend` in the service settings.
-3. Railway will automatically detect the `railway.toml` and Nixpacks will install Python 3.13 and all `requirements.txt` dependencies.
-4. Add backend environment variables (Supabase, Groq).
-5. Expose the deployment to the public web (Railway generates a custom domain).
-6. **Important:** Update the Vercel frontend `NEXT_PUBLIC_API_URL` to point to your new Railway backend domain.
-
----
-
 ## 🗺 Roadmap
 
 - [x] Core 5-Agent Pipeline
