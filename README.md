@@ -150,7 +150,6 @@ masdp/
 
 ## 📸 Screenshots
 
-*(Please save the uploaded screenshots into the `docs/screenshots/` directory with the matching filenames below)*
 
 | Dashboard | Architecture View |
 |:---:|:---:|
