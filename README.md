@@ -219,9 +219,7 @@ GEMINI_API_KEY=...
 - [x] Project Versioning & Iteration
 - [x] Context-Aware Architecture Chat (RAG)
 - [x] Multi-format Exports
-- [ ] Direct GitHub Repository Scaffold Generation
-- [ ] JIRA/Linear Ticket Sync Integration
-- [ ] Multi-player Realtime Editing
+
 
 ---
 
